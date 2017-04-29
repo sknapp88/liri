@@ -3,13 +3,28 @@ var inquirer = require("inquirer");
 var fs = require("fs");
 var spotify = require("spotify");
 var request = require("request");
+var twitter = require("twitter");
 // var omdb = require("omdb");
 
 // var input = process.argv;
 // console.log(input);
-var twitter = function(){
-	if (input[2] === "my-tweets"){
 
+var client = new twitter({
+	consumer_key: keys.twitterKeys.consumer_key,
+	consumer_secret: keys.twitterKeys.consumer_secret,
+	access_token_key: keys.twitterKeys.access_token_key,
+	access_token_secret: keys.twitterKeys.access_token_secret
+});
+
+var twitterMe = function(){
+	{
+		client.get('statuses/user_timeline', function(error, tweets, response){
+			if(!error) {
+				for ( var i=0; i<20; i++){
+					console.log(tweets[i].text);
+				}
+			}
+		});
 	}
 };
 
@@ -53,42 +68,47 @@ var movieMe = function(movie){
 		// }
 
 		request( movieUrl, function( err, resp, body ) {
-        if ( err ) throw err;
+			if ( err ) throw err;
 
-        console.log( body );
-    });
-    var movies = ["body"];
-    if (movies.length < 1) {
-			console.log('No movies were found!');
-		}
-
-		movies.forEach(function(movie) {
-			console.log("-----------------------------------------");
-			console.log( "Title           : " + movie.Title );
-			console.log( "Year released   : " + movie.Year );
-			console.log( "IMDB Rating     : " + movie.imdbRating );
-			console.log( "Country         : " + movie.Country );
-			console.log( "Language        : " + movie.Language );
-			console.log( "Plot            : " + movie.Plot );
-			console.log( "Actors          : " + movie.Actors );
-			console.log( "Rotten tomatoes : " + movie.RottenTomatoes || 'Unavailable' );
-			console.log( "Rotten URL      : " + movie.RottenURL || 'Unavailable' );
+			
+			var movie = JSON.parse(body);
+			console.log(movie);
+			// var movies = [body];
+			// if (movies.length < 1) {
+			// 	console.log('No movies were found!');
+			// }
+			// movies.forEach(function(movie) {
+				console.log("-----------------------------------------");
+				console.log( "Title           : " + movie.Title );
+				console.log( "Year released   : " + movie.Year );
+				console.log( "IMDB Rating     : " + movie.imdbRating );
+				console.log( "Country         : " + movie.Country );
+				console.log( "Language        : " + movie.Language );
+				console.log( "Plot            : " + movie.Plot );
+				console.log( "Actors          : " + movie.Actors );
+				console.log( "Rotten tomatoes : " + movie.RottenTomatoes || 'Unavailable' );
+				console.log( "Rotten URL      : " + movie.RottenURL || 'Unavailable' );
+			// });
 		});
+
+
+		
 
     // });
 };
 
 
 var dwis = function(){
-	if (input[2] === "do-what-it-says"){
-
-	}
+	var random = fs.readFile("random.txt", "UTF-8", function(err, data){
+		var pieces = data.split(",");
+		run(pieces[0], pieces[1]);
+	});
 };
 
 var run = function(arg1,arg2){
 	switch(arg1){
 		case "my-tweets": 
-		//to do
+		twitterMe();
 		break;
 
 		case "spotify-this-song":
@@ -100,7 +120,7 @@ var run = function(arg1,arg2){
 		break;
 
 		case "do-what-it-says":
-		// to do
+		dwis();
 		break;
 
 		default: 
